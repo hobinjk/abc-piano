@@ -13,6 +13,13 @@ InputStream.prototype.canPeek = function(len) {
 };
 
 /**
+ * @return {String} The remaining characters
+ */
+InputStream.prototype.peekToEnd = function() {
+  return this.input.substring(this.index, this.input.length);
+};
+
+/**
  * @param {number} len
  * @return {String} The next len characters
  */
@@ -57,4 +64,14 @@ InputStream.prototype.takeUntil = function(chr) {
   var str = this.input.substring(this.index, idx);
   this.index = idx;
   return str;
+};
+
+/**
+ * Takes until the next newline then consumes the newline
+ * @return {String} line
+ */
+InputStream.prototype.takeLine = function() {
+  var line = this.takeUntil('\n');
+  this.take(1);
+  return line;
 };
