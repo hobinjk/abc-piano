@@ -16,18 +16,19 @@ var notes = parser.notes;
 console.log(notes);
 
 
-window.onload = function () {
-  MIDI.loadPlugin({
-    soundfontUrl: "./lib/soundfont/",
-    instrument: "acoustic_grand_piano",
-    onsuccess: function() {
-      var delay = 0; // play one note every quarter second
-      var note = 50; // the MIDI note
-      var velocity = 127; // how hard the note hits
-      // play the note
-      MIDI.setVolume(0, 127);
-      MIDI.noteOn(0, note, velocity, delay);
-      MIDI.noteOff(0, note, delay + 0.75);
+MIDI.loadPlugin({
+  soundfontUrl: './lib/soundfont/',
+  instrument: 'acoustic_grand_piano',
+  onsuccess: function() {
+    var time = 0; // play one note every quarter second
+    var note = 50; // the MIDI note
+    var velocity = 127; // how hard the note hits
+    // play the note
+    MIDI.setVolume(0, 127);
+    for (var note of notes) {
+      MIDI.noteOn(0, note.getNumber(), velocity, time);
+      MIDI.noteOff(0, note.getNumber(), time + note.duration / 1.5);
+      time += note.duration;
     }
-  });
-};
+  }
+});
