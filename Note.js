@@ -13,7 +13,17 @@ function Note(note, octave, hasAccidental, accidental, duration) {
  * signature changes
  */
 Note.prototype.getBaseNumber = function() {
-  return this.note.charCodeAt(0) - 'a'.charCodeAt(0) + 12 * this.octave + 69;
+  var bases = {
+    'a': 0,
+    'b': 2,
+    'c': 3,
+    'd': 5,
+    'e': 7,
+    'f': 8,
+    'g': 10
+  };
+
+  return bases[this.note] + 12 * this.octave + 69;
 };
 
 /**
