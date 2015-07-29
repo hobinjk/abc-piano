@@ -76,29 +76,28 @@ Parser.prototype.parseNote = function() {
 Parser.prototype.parse = function() {
   this.parseHeader();
   while (this.input.canPeek(1)) {
-    switch (this.input.peek(1)) {
-    case ' ':
+    var inputChr = this.input.peek(1);
+    if (inputChr === ' ') {
       this.input.take(1);
-      break;
-    case '|':
-    case ']':
-    case '[':
-      this.advanceMeasure();
-      break;
-    default:
-      var note = this.parseNote();
-      var base = note.getBaseNumber();
-      if (note.hasAccidental) {
-        this.accidentals[base] = note.accidental;
-      } else if (this.accidentals.hasOwnProperty(base)) {
-        note.hasAccidental = true;
-        note.accidental = this.accidentals[base];
-      } else {
-        note.accidental = this.keySignature[note.note];
-      }
-      this.notes.push(note);
-      break;
+      continue;
     }
+
+    if (this.isMeasureBar(inputChr)) {
+      this.advanceMeasure();
+      continue;
+    }
+
+    var note = this.parseNote();
+    var base = note.getBaseNumber();
+    if (note.hasAccidental) {
+      this.accidentals[base] = note.accidental;
+    } else if (this.accidentals.hasOwnProperty(base)) {
+      note.hasAccidental = true;
+      note.accidental = this.accidentals[base];
+    } else {
+      note.accidental = this.keySignature[note.note];
+    }
+    this.notes.push(note);
   }
 };
 
@@ -116,19 +115,30 @@ Parser.prototype.parseHeader = function() {
 };
 
 /**
+ * @param {String} chr
+ * @return {Boolean} Whether chr is a measure bar character
+ */
+Parser.prototype.isMeasureBar = function(chr) {
+  switch (chr) {
+    case '|':
+    case ']':
+    case '[':
+    case ':':
+      return true;
+    default:
+      return false;
+  }
+};
+/**
  * Seek forward by one measure
  */
 Parser.prototype.advanceMeasure = function() {
   while (this.input.canPeek(1)) {
-    switch (this.input.peek(1)) {
-      case '|':
-      case ']':
-      case '[':
-        this.input.take(1);
-        continue;
-      default:
-        break;
+    if (!this.isMeasureBar(this.input.peek(1))) {
+      break;
     }
+    this.input.take(1);
+    continue;
   }
   this.accidentals = {};
 };
